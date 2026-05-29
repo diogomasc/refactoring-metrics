@@ -49,6 +49,14 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+		<!-- ── AOP — obrigatório para @Observed funcionar ───── -->
+		<!-- ObservedAspect cria proxies AspectJ nos beans anotados -->
+		<!-- Sem isso, @Observed é ignorado silenciosamente        -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
 		<!-- ── Prometheus registry ───────────────────────────── -->
 		<!-- Expõe /actuator/prometheus para o Prometheus coletar -->
 		<dependency>

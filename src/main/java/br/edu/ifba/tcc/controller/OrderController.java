@@ -4,6 +4,7 @@ import br.edu.ifba.tcc.model.Order;
 import br.edu.ifba.tcc.service.NotificationService;
 import br.edu.ifba.tcc.service.OrderService;
 import br.edu.ifba.tcc.service.ReportService;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,15 @@ import java.util.Map;
  * POST /orders         → processOrder() (God Class, Long Method)
  * GET  /orders/{id}    → consulta com N+1 query implícita
  * GET  /orders/report  → relatório que duplica lógica de desconto (Shotgun Surgery)
+ *
+ * @Observed no nível de classe → ObservedAspect cria uma Observation para
+ * cada método público, expondo a métrica "order.controller.seconds" no
+ * Prometheus com percentis p50/p95/p99 e tag de erro automática.
  */
+@Observed(
+        name = "order.controller",
+        contextualName = "controller-de-pedidos"
+)
 @RestController
 @RequestMapping("/orders")
 public class OrderController {

@@ -3,6 +3,7 @@ package br.edu.ifba.tcc.service;
 import br.edu.ifba.tcc.model.Customer;
 import br.edu.ifba.tcc.model.Order;
 import br.edu.ifba.tcc.repository.CustomerRepository;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,17 @@ import java.util.Optional;
  * Shotgun Surgery intencional — duplica a lógica de desconto que já está
  * em OrderService, DiscountCalculator e ReportService.
  * Alterar a regra de desconto exige modificar este arquivo também.
+ *
+ * @Observed instrumenta notifyOrderConfirmation().
+ * Como é chamada sincronamente dentro de OrderController.createOrder(),
+ * seu tempo de execução soma à latência total do POST /orders —
+ * evidenciando o custo de responsabilidades espalhadas (God Class + Feature Envy).
+ * Métrica gerada: "notification.service.seconds" (Histogram).
  */
+@Observed(
+        name = "notification.service",
+        contextualName = "servico-de-notificacao-feature-envy"
+)
 @Service
 public class NotificationService {
 

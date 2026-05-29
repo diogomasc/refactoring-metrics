@@ -4,6 +4,7 @@ import br.edu.ifba.tcc.model.Customer;
 import br.edu.ifba.tcc.model.Order;
 import br.edu.ifba.tcc.repository.CustomerRepository;
 import br.edu.ifba.tcc.repository.OrderRepository;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,16 @@ import java.util.Optional;
  * Shotgun Surgery intencional — duplica a lógica de desconto que já está
  * em OrderService e DiscountCalculator.
  * Alterar a regra de desconto exige modificar este arquivo também.
+ *
+ * @Observed instrumenta generateDetailedReport().
+ * O loop N+1 (busca de Customer para cada Order) é visível no Grafana como
+ * pico de "report.service.seconds" proporcional ao volume de pedidos.
+ * Métrica gerada: "report.service.seconds" (Histogram).
  */
+@Observed(
+        name = "report.service",
+        contextualName = "servico-de-relatorio-shotgun-surgery"
+)
 @Service
 public class ReportService {
 

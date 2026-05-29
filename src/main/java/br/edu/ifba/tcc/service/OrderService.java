@@ -7,6 +7,7 @@ import br.edu.ifba.tcc.model.Product;
 import br.edu.ifba.tcc.repository.CustomerRepository;
 import br.edu.ifba.tcc.repository.OrderRepository;
 import br.edu.ifba.tcc.repository.ProductRepository;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,7 +27,16 @@ import java.util.Optional;
  * - Feature Envy: acessa diretamente campos de Customer e Product
  * - Dispersed Coupling: instancia repositórios via Spring mas sem interfaces/abstração
  * - Shotgun Surgery: lógica de desconto duplicada aqui e em DiscountCalculator/ReportService/NotificationService
+ *
+ * @Observed instrumenta processOrder(), getOrderById() e generateOrdersReport().
+ * O tempo de execução de processOrder() sob carga expõe o custo do Long Method
+ * e das múltiplas responsabilidades (validação + desconto + persistência).
+ * Métrica gerada: "order.service.seconds" (Histogram) → p50/p95/p99 no Grafana.
  */
+@Observed(
+        name = "order.service",
+        contextualName = "servico-de-pedidos-god-class"
+)
 @Service
 public class OrderService {
 
